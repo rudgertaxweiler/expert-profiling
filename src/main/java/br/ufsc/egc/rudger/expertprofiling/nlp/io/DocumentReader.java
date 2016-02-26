@@ -7,15 +7,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.xml.sax.SAXException;
 
 import br.ufsc.egc.rudger.expertprofiling.normalizer.DefaultNormalizer;
 import de.tudarmstadt.ukp.dkpro.core.api.io.ResourceCollectionReaderBase;
@@ -47,6 +50,7 @@ public class DocumentReader extends ResourceCollectionReaderBase {
     @Override
     public void getNext(final CAS aCAS) throws IOException, CollectionException {
         Resource res = this.nextFile();
+
         this.initCas(aCAS, res);
 
         BodyContentHandler handler = new BodyContentHandler(Integer.MAX_VALUE);
@@ -69,8 +73,10 @@ public class DocumentReader extends ResourceCollectionReaderBase {
             }
 
             this.getLogger().info("Document read in '" + new File(res.getResolvedUri()).getAbsolutePath() + "'.");
-        } catch (Exception e) {
-            throw new IOException(e);
+        } catch (TikaException | SAXException e) {
+            this.getLogger().info("Could not read the document '" + new File(res.getResolvedUri()).getAbsolutePath() + "'. Skipping.");
+        } catch (CASException e) {
+            throw new CollectionException(e);
         } finally {
             closeQuietly(is);
         }
