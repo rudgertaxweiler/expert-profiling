@@ -1,0 +1,2 @@
+classpath*:desc/type/Annotations.xml
+classpath*:desc/type/HeidelTime_TypeSystem.xml

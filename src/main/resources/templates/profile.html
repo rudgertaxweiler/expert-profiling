@@ -1,0 +1,189 @@
+<!-- http://almende.github.io/chap-links-library/timeline.html -->
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<head>
+	<title>Rudger Nowasky do Nascimento</title>
+
+	<style type="text/css">
+		html {
+			overflow-y: scroll;
+		}
+		
+		body {
+			font: 10pt arial;
+			background-color: #4A4A4A;
+			height:100%;
+			margin:0;
+    		padding:0;
+		}
+		
+		h1 {
+			text-align: center;
+			vertical-align: middle;
+			padding-top: 15px;
+			padding-bottm: 20px;
+			color: #E9E9E9
+		}
+		
+		#container {
+		    min-height:100%;
+		    position:relative;
+		}
+		
+		#container {
+		    min-height:100%;
+		    position:relative;
+		}
+		#header {
+		    padding:10px;
+		}
+		#body {
+		    padding:10px;
+		    padding-bottom:60px;
+		}
+		#buttons {
+			 width:100%;
+			 height: 40px;
+		}
+		#footer {
+		    position:absolute;
+		    bottom:0;
+		    width:100%;
+		    height:30px;
+			background-color: #2A2D30;
+			text-align: center;
+			padding-top: 15px;
+			color: #E9E9E9;
+		}
+		
+		#footer a:link, a:visited  {
+			color: #E9E9E9;
+			text-decoration: none;
+		}
+		
+		#timeline {
+			background-color: white;
+			width: 100%; 
+		}
+		
+		#cloud {
+			background-color: white;
+			height: 700px; 
+			width: 100%; 
+	 		border-style: solid;
+    		border-width: 1px;
+    		border-color: #BEBEBE;
+		}
+		
+		.btn {
+			  -webkit-border-radius: 28;
+			  -moz-border-radius: 28;
+			  border-radius: 28px;
+			  color: white;
+			  background: #2A2D30;
+			  padding: 10px 20px 10px 20px;
+			  text-decoration: none;
+			  cursor: pointer;
+		}
+			
+
+	</style>
+
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="http://almende.github.io/chap-links-library/js/timeline/timeline.js"></script>
+	<script type="text/javascript" src="http://almende.github.io/chap-links-library/js/timeline/timeline-locales.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://almende.github.io/chap-links-library/js/timeline/timeline.css">
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="http://mistic100.github.io/jQCloud/dist/jqcloud2/dist/jqcloud.min.js"></script>
+	<link href="http://mistic100.github.io/jQCloud/dist/jqcloud2/dist/jqcloud.min.css" rel="stylesheet">
+	
+	<script src="http://unslider.com/unslider/dist/js/unslider-min.js"></script>
+	<link rel="stylesheet" href="http://unslider.com/unslider/dist/css/unslider.css">
+	<link rel="stylesheet" href="http://unslider.com/unslider/dist/css/unslider-dots.css">
+	
+	<script type="text/javascript">
+		var timeline;
+		var data;
+		var options;
+	
+		google.load("visualization", "1");
+	
+		// Set callback to run when API is loaded
+		google.setOnLoadCallback(drawVisualization);
+	
+		// Called when the Visualization API is loaded.
+		function drawVisualization() {
+			// Create and populate a data table.
+			data = new google.visualization.DataTable();
+			data.addColumn('datetime', 'start');
+			data.addColumn('datetime', 'end');
+			data.addColumn('string', 'content');
+	
+			data.addRows([
+				#foreach( $timelineKey in $timelineMap.keySet())
+					#set( $timelineList = $timelineMap.get($timelineKey) )
+					#foreach( $dbpediaCategory in $timelineList)
+						[new Date($timelineKey), null , '$dbpediaCategory.getValue() ($dbpediaCategory.getTotal())'],
+					#end
+				#end
+			]);
+	
+			// specify options
+			options = {
+				 'width':  '100%',
+				 'height': 'auto',
+				 'editable': false,
+				 'animate': false,
+				 'axisOnTop': true,
+				 'locale' : 'pt',
+				 'style': 'dot',
+				 'showNavigation' : true
+			};
+	
+			timeline = new links.Timeline(document.getElementById('timeline'), options);
+			timeline.draw(data);
+			$("#timeline").hide();
+		}
+		
+		var words = [
+			  #foreach( $dbpediaCategory in $dbpediaCategoryList)
+			    {text: "$dbpediaCategory.getValue() ($dbpediaCategory.getTotal())", weight: $dbpediaCategory.getTotal(), link: '$dbpediaCategory.getUri()'},
+			  #end         
+		];
+		
+		$(document).ready(function () {
+			$('#cloud').jQCloud(words);
+		    $(window).resize(function() {
+		    	$('#cloud').empty();
+		    	$('#cloud').css("width", "100%");
+		    	$('#cloud').jQCloud(words);
+		    });
+		    $('#b0').click(function(){
+		    	 $("#timeline").hide();
+		    	 $("#cloud").show();
+		    });
+		    $('#b1').click(function(){
+		    	 $("#cloud").hide();
+		    	 $("#timeline").show();
+		    });
+		});
+	
+	</script>
+
+</head>
+	<body>
+		<div id="container">
+    		<div id="header"><h1>Rudger Nowasky do Nascimento</h1></div>
+    		<div id="body">
+				<div id="buttons">
+					<a id="b0" class="btn">Tag cloud</a>
+					<a id="b1" class="btn">Timeline</a>
+				</div>
+				<div id="cloud"></div>
+				<div id="timeline"></div>
+			</div>
+    		<div id="footer"><a href="http://github.com/rudgern/expert-profiling">Gerado pelo Expert Profiling em ${generatedDate}</a></div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,22 @@
+UM MODELO PARA A EXTRAÇÃO DE PERFIL DE ESPECIALISTA APLICADO ÀS FERRAMENTAS DE EXPERTISE LOCATION E APOIO À GESTÃO DO CONHECIMENTO
+
+Aluno: Rudger Nowasky do Nascimento
+
+As ferramentas de Expertise Location podem ser utilizadas amplamente na Gestão do Conhecimento para apoiar a identificação e o compartilhamento do conhecimento. 
+Porém, manter os dados dos colaboradores de uma organização atualizados nessas ferramentas pode ser desafiador. 
+Muitas vezes, os colaboradores precisam preencher as mesmas informações em diversos sistemas. 
+Em busca de alternativas que possam simplificar esse processo de atualização dos dados, este trabalho propõe um modelo para a extração de perfis de especialistas a partir de documentos presentes na organização ou que possam ser buscados na internet. 
+Para a construção desse modelo, realizou-se uma revisão integrativa da literatura que resultou na identificação das abordagens atuais para extração de perfil de especialista. 
+A partir dessas abordagens, elaborou-se um modelo composto por um método conceitual e um protótipo tecnológico para a tarefa de extração de informações de perfil de especialistas com o objetivo de apoiar as ferramentas de Expertise Location. 
+Observa-se que a utilização dos documentos não estruturados de uma organização pode ajudar na extração de perfis de especialistas, possibilitando a utilização de menos tempo para atualização de seus dados em ferramentas de Expertise Location. 
+
+Palavras-chave: Expertise Location. Gestão do Conhecimento. Engenharia do Conhecimento. Recuperação de Expertise. Extração de perfis de especialistas, Processamento de Linguagem Natural (PLN) ou Natural Language Processing (NLP).
+
+Professor Orientador: Dr. Denilson Sell
+
+Agradecimentos ao Prof. Dr. Tite Todesco e Msc Fernando Borges, do Instituto Stela e do Programa de Engenharia e Gestão do Conhecimento da Universidade Federal de Santa Catarina, respectivamente, pela colaboração.
+
+Esse trabalho está sendo desenvolvido desde 2015. Será defendido em 16 de março de 2016.
+
+
+Esse é um teste para natália sobre Gestão de Recursos Humanos.
