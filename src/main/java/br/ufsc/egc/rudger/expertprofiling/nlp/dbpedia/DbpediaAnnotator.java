@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -28,6 +29,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import br.ufsc.egc.rudger.expertprofiling.concurrent.ServiceThreadExecutor;
 import br.ufsc.egc.rudger.expertprofiling.nlp.types.DbpediaCategory;
 import br.ufsc.egc.rudger.expertprofiling.normalizer.DefaultNormalizer;
 import br.ufsc.egc.rudger.expertprofiling.normalizer.Normalizer;
@@ -144,46 +146,68 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
 
     @Override
     public void process(final JCas jCas) throws AnalysisEngineProcessException {
-        for (Sentence currSentence : JCasUtil.select(jCas, Sentence.class)) {
-            ArrayList<Token> tokens = new ArrayList<Token>(JCasUtil.selectCovered(Token.class, currSentence));
-
-            int ngram = Math.min(tokens.size(), this.maxTokens);
-
-            int i = 0;
-            do {
-                int end = Math.min(i + ngram, tokens.size());
-                List<String> tokensNgram = new ArrayList<String>(end - i);
-
-                for (int j = i; j < end; j++) {
-                    tokensNgram.add(tokens.get(j).getCoveredText());
-                }
-
-                LongestMatchResult longestMatch = null;
-                try {
-                    longestMatch = this.getLongestMatch(tokensNgram);
-                } catch (IOException e) {
-                    throw new AnalysisEngineProcessException(e);
-                }
-
-                if (longestMatch != null) {
-                    int lastTokenPos = i + longestMatch.tokens.size() - 1;
-
-                    Token beginToken = tokens.get(i);
-                    Token endToken = tokens.get(lastTokenPos);
-
-                    if (JCasUtil.selectAt(jCas, StopWord.class, beginToken.getBegin(), endToken.getEnd()).isEmpty()) {
-                        for (String concept : longestMatch.concepts) {
-                            DbpediaCategory dbpediaCategory = new DbpediaCategory(jCas, beginToken.getBegin(), endToken.getEnd());
-                            dbpediaCategory.setUri(concept);
-                            jCas.getCas().addFsToIndexes(dbpediaCategory);
-                        }
-                    } 
-                    i = lastTokenPos; // move to the found concept position
-                }
-
-                i++;
-            } while (i < tokens.size());
+        ServiceThreadExecutor executor = ServiceThreadExecutor.newProcessorsThreadPool(100);
+        try {
+            for (Sentence currSentence : JCasUtil.select(jCas, Sentence.class)) {
+                executor.submit(() -> {
+                    try {
+                        this.processSentence(jCas, currSentence);
+                    } catch (Exception e) {
+                        this.getLogger().error("Error processing sentence", e);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                this.getLogger().error("Error finalizing thread pool", e);
+            }
         }
+    }
+
+    private void processSentence(final JCas jCas, final Sentence currSentence) throws AnalysisEngineProcessException {
+        ArrayList<Token> tokens = new ArrayList<Token>(JCasUtil.selectCovered(Token.class, currSentence));
+
+        int ngram = Math.min(tokens.size(), this.maxTokens);
+
+        int i = 0;
+        do {
+            int end = Math.min(i + ngram, tokens.size());
+            List<String> tokensNgram = new ArrayList<String>(end - i);
+
+            for (int j = i; j < end; j++) {
+                tokensNgram.add(tokens.get(j).getCoveredText());
+            }
+
+            LongestMatchResult longestMatch = null;
+            try {
+                longestMatch = this.getLongestMatch(tokensNgram);
+            } catch (IOException e) {
+                throw new AnalysisEngineProcessException(e);
+            }
+
+            if (longestMatch != null) {
+                int lastTokenPos = i + longestMatch.tokens.size() - 1;
+
+                Token beginToken = tokens.get(i);
+                Token endToken = tokens.get(lastTokenPos);
+
+                if (JCasUtil.selectAt(jCas, StopWord.class, beginToken.getBegin(), endToken.getEnd()).isEmpty()) {
+                    for (String concept : longestMatch.concepts) {
+                        DbpediaCategory dbpediaCategory = new DbpediaCategory(jCas, beginToken.getBegin(), endToken.getEnd());
+                        dbpediaCategory.setUri(concept);
+                        jCas.getCas().addFsToIndexes(dbpediaCategory);
+                    }
+                }
+                i = lastTokenPos; // move to the found concept position
+            }
+
+            i++;
+        } while (i < tokens.size());
     }
 
     /*
