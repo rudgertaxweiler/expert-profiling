@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -147,29 +148,38 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
     @Override
     public void process(final JCas jCas) throws AnalysisEngineProcessException {
         ServiceThreadExecutor executor = ServiceThreadExecutor.newProcessorsThreadPool(100);
+        List<LongestMatchResult> annotations = new Vector<>();
         try {
             for (Sentence currSentence : JCasUtil.select(jCas, Sentence.class)) {
                 executor.submit(() -> {
                     try {
-                        this.processSentence(jCas, currSentence);
-                    } catch (Exception e) {
-                        this.getLogger().error("Error processing sentence", e);
+                        this.processSentence(jCas, currSentence, annotations);
+                    } catch (AnalysisEngineProcessException e) {
+                        throw new RuntimeException(e);
                     }
                 });
             }
-        } catch (Exception e) {
-            throw e;
         } finally {
             executor.shutdown();
             try {
                 executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+
+                for (LongestMatchResult longestMatchResult : annotations) {
+                    for (String conceptUri : longestMatchResult.concepts) {
+                        DbpediaCategory dbpediaCategory = new DbpediaCategory(jCas, longestMatchResult.begin, longestMatchResult.end);
+                        dbpediaCategory.setUri(conceptUri);
+                        dbpediaCategory.addToIndexes();
+                    }
+                }
+
             } catch (InterruptedException e) {
-                this.getLogger().error("Error finalizing thread pool", e);
+                throw new AnalysisEngineProcessException(e);
             }
         }
     }
 
-    private void processSentence(final JCas jCas, final Sentence currSentence) throws AnalysisEngineProcessException {
+    private void processSentence(final JCas jCas, final Sentence currSentence, final List<LongestMatchResult> annotations)
+            throws AnalysisEngineProcessException {
         ArrayList<Token> tokens = new ArrayList<Token>(JCasUtil.selectCovered(Token.class, currSentence));
 
         int ngram = Math.min(tokens.size(), this.maxTokens);
@@ -197,11 +207,11 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
                 Token endToken = tokens.get(lastTokenPos);
 
                 if (JCasUtil.selectAt(jCas, StopWord.class, beginToken.getBegin(), endToken.getEnd()).isEmpty()) {
-                    for (String concept : longestMatch.concepts) {
-                        DbpediaCategory dbpediaCategory = new DbpediaCategory(jCas, beginToken.getBegin(), endToken.getEnd());
-                        dbpediaCategory.setUri(concept);
-                        jCas.getCas().addFsToIndexes(dbpediaCategory);
-                    }
+
+                    longestMatch.begin = beginToken.getBegin();
+                    longestMatch.end = beginToken.getEnd();
+
+                    annotations.add(longestMatch);
                 }
                 i = lastTokenPos; // move to the found concept position
             }
@@ -264,6 +274,9 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
     private class LongestMatchResult {
         List<String> tokens;
         Collection<String> concepts;
+
+        int begin;
+        int end;
     }
 
     private class TokenCounterNormalizerWrapper implements Normalizer {
