@@ -205,7 +205,7 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
             values.put(property.getKey(), property.getValue());
         }
 
-        return values.isEmpty() ? null : this.gson.toJson(values);
+        return this.gson.toJson(values);
     }
 
     private Document getDocFromAnnotation(final Timex3 timex3, final Sentence sentence, final int sentenceDocSeq, final long documentId) {

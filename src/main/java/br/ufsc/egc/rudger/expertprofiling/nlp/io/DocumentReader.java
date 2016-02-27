@@ -18,6 +18,7 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Progress;
 import org.xml.sax.SAXException;
 
 import br.ufsc.egc.rudger.expertprofiling.normalizer.DefaultNormalizer;
@@ -51,6 +52,8 @@ public class DocumentReader extends ResourceCollectionReaderBase {
     public void getNext(final CAS aCAS) throws IOException, CollectionException {
         Resource res = this.nextFile();
 
+        Progress[] progress = this.getProgress();
+
         this.initCas(aCAS, res);
 
         BodyContentHandler handler = new BodyContentHandler(Integer.MAX_VALUE);
@@ -72,8 +75,10 @@ public class DocumentReader extends ResourceCollectionReaderBase {
                 property.addToIndexes();
             }
 
-            this.getLogger().info("Document read in '" + new File(res.getResolvedUri()).getAbsolutePath() + "'.");
+            this.getLogger().info("Document read in '" + new File(res.getResolvedUri()).getAbsolutePath() + "' (" + progress[0].getCompleted() + " of "
+                    + progress[0].getTotal() + ").");
         } catch (TikaException | SAXException e) {
+            aCAS.setDocumentText("");
             this.getLogger().info("Could not read the document '" + new File(res.getResolvedUri()).getAbsolutePath() + "'. Skipping.");
         } catch (CASException e) {
             throw new CollectionException(e);
