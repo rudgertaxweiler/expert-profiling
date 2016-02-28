@@ -247,8 +247,8 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
         doc.add(new TextField(LuceneIndexFields.FIELD_DOC_MD5, docMd5, Store.YES));
         doc.add(new StringField(LuceneIndexFields.FIELD_DOC_METADATA_JSON, propertiesJson, Store.YES));
         doc.add(new LongField(LuceneIndexFields.FIELD_DOC_CREATION_TIME, fileAtts.creationTime().toMillis(), Store.YES));
-        doc.add(new LongField(LuceneIndexFields.FIELD_DOC_LAST_MODIFICATION_TIME, fileAtts.lastAccessTime().toMillis(), Store.YES));
-        doc.add(new LongField(LuceneIndexFields.FIELD_DOC_LAST_ACCESS_TIME, fileAtts.lastModifiedTime().toMillis(), Store.YES));
+        doc.add(new LongField(LuceneIndexFields.FIELD_DOC_LAST_MODIFICATION_TIME, fileAtts.lastModifiedTime().toMillis(), Store.YES));
+        doc.add(new LongField(LuceneIndexFields.FIELD_DOC_LAST_ACCESS_TIME, fileAtts.lastAccessTime().toMillis(), Store.YES));
 
         doc.add(new StringField(LuceneIndexFields.FIELD_DOC_OWNER_CODE, this.ownerCode, Store.YES));
         doc.add(new StringField(LuceneIndexFields.FIELD_DOC_OWNER_NAME, this.ownerName, Store.YES));

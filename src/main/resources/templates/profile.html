@@ -4,7 +4,7 @@
 <head>
 	<title>${ownerName}</title>
 
-	<style type="text/css">
+		<style type="text/css">
 		html {
 			overflow-y: scroll;
 		}
@@ -86,7 +86,7 @@
 		}
 		
 		#report table {
-			border-spacing: 10px; 
+			border-spacing: 100px; 
 		}
 		
 		.btn {
@@ -109,6 +109,8 @@
 			font-weight: bold;
 			padding: 20px;
 			color: #2A2D30;
+			vertical-align: top;
+			font-size: 16px;
 		}
 		
 		.reportcategory {
@@ -207,11 +209,12 @@
 		    });
 		    
 		    $(window).resize(function() {
-		    	$('#cloud').empty();
-		    	$('#cloud').css("width", "100%");
+		    	$('#cloud').jQCloud('destroy')
 		    	$('#cloud').jQCloud(words);
+				timeline.draw(data);
 		    });
 		});
+	
 	
 	</script>
 
