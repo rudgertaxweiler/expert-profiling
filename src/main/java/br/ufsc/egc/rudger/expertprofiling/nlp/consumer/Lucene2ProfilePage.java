@@ -226,6 +226,10 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.DST_OFFSET, 0);
         cal.set(Calendar.ZONE_OFFSET, 0);
+        
+        //rounding to last day of year
+        cal.add(Calendar.YEAR, 1);
+        cal.add(Calendar.MILLISECOND, 1); 
         return cal.getTimeInMillis();
     }
 
