@@ -47,7 +47,7 @@ public class ExpertProfilingPipeline {
         String userName = "Rudger Nowasky do Nascimento";
 
         String targetFile = "target/profiles/" + userName + ".html";
-        boolean debug = true;
+        boolean debug = false;
         boolean parseDates = false;
 
         //@formatter:off

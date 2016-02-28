@@ -10,7 +10,7 @@
 		}
 		
 		body {
-			font: 10pt arial;
+			font: 10pt Helvetica;
 			background-color: #4A4A4A;
 			height:100%;
 			margin:0;
@@ -34,17 +34,21 @@
 		    min-height:100%;
 		    position:relative;
 		}
+		
 		#header {
 		    padding:10px;
 		}
+		
 		#body {
 		    padding:10px;
 		    padding-bottom:60px;
 		}
+		
 		#buttons {
 			 width:100%;
 			 height: 40px;
 		}
+		
 		#footer {
 		    position:absolute;
 		    bottom:0;
@@ -66,6 +70,7 @@
 			width: 100%; 
 		}
 		
+		
 		#cloud {
 			background-color: white;
 			height: 700px; 
@@ -73,6 +78,15 @@
 	 		border-style: solid;
     		border-width: 1px;
     		border-color: #BEBEBE;
+		}
+		
+		#report {
+			background-color: white;
+			width: 100%; 
+		}
+		
+		#report table {
+			border-spacing: 10px; 
 		}
 		
 		.btn {
@@ -85,8 +99,27 @@
 			  text-decoration: none;
 			  cursor: pointer;
 		}
+		
+		.reportline {
+			padding: 20px 20px;
+		}
+	
+		.reportdate {
+			font: 10pt Helvetica;
+			font-weight: bold;
+			padding: 20px;
+			color: #2A2D30;
+		}
+		
+		.reportcategory {
+			font: 10pt Helvetica;
+			padding: 20px 30px 0px 0px;
+			white-space: nowrap;
+			-webkit-font-smoothing: subpixel-antialiased;
+			display:inline-block;
+			color: #1a77c1;
+		}
 			
-
 	</style>
 
 	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -121,10 +154,9 @@
 			data.addColumn('string', 'content');
 	
 			data.addRows([
-				#foreach( $timelineKey in $timelineMap.keySet())
-					#set( $timelineList = $timelineMap.get($timelineKey) )
-					#foreach( $dbpediaCategory in $timelineList)
-						[new Date($timelineKey), null , '$dbpediaCategory.getValue() ($dbpediaCategory.getTotal())'],
+				#foreach( $timelineEntry in $timeline.entrySet())
+					#foreach( $timelineEntryEntry in $timelineEntry.getValue().entrySet())
+						[new Date($timelineEntry.getKey()), null , '$dbpediaCategories.get($timelineEntryEntry.getKey()) ($timelineEntryEntry.getValue())'],
 					#end
 				#end
 			]);
@@ -147,25 +179,37 @@
 		}
 		
 		var words = [
-			  #foreach( $dbpediaCategory in $dbpediaCategoryList)
-			    {text: "$dbpediaCategory.getValue() ($dbpediaCategory.getTotal())", weight: $dbpediaCategory.getTotal(), link: '$dbpediaCategory.getUri()'},
+			  #foreach( $tagcloudEntry in $tagcloud.entrySet())
+			    {text: "$dbpediaCategories.get($tagcloudEntry.getKey()) ($tagcloudEntry.getValue())", weight: $tagcloudEntry.getValue(), link: '$tagcloudEntry.getKey()'},
 			  #end         
 		];
 		
 		$(document).ready(function () {
-			$('#cloud').jQCloud(words);
-		    $(window).resize(function() {
-		    	$('#cloud').empty();
-		    	$('#cloud').css("width", "100%");
-		    	$('#cloud').jQCloud(words);
-		    });
+			$('#report').hide();
+		    $('#cloud').jQCloud(words);
 		    $('#b0').click(function(){
 		    	 $("#timeline").hide();
+		    	 $("#report").hide();
+		    	 
 		    	 $("#cloud").show();
 		    });
 		    $('#b1').click(function(){
 		    	 $("#cloud").hide();
+		    	 $("#report").hide();
+		    	 
 		    	 $("#timeline").show();
+		    });
+		    $('#b2').click(function(){
+		    	 $("#cloud").hide();
+		    	 $("#timeline").hide();
+		    	 
+		    	 $("#report").show();
+		    });
+		    
+		    $(window).resize(function() {
+		    	$('#cloud').empty();
+		    	$('#cloud').css("width", "100%");
+		    	$('#cloud').jQCloud(words);
 		    });
 		});
 	
@@ -179,9 +223,24 @@
 				<div id="buttons">
 					<a id="b0" class="btn">Tag cloud</a>
 					<a id="b1" class="btn">Timeline</a>
+					<a id="b2" class="btn">Relat&oacute;rio</a>
 				</div>
 				<div id="cloud"></div>
 				<div id="timeline"></div>
+				<div id="report">
+					<table>
+						#foreach( $timelineEntry in $timeline.entrySet())
+							<tr>
+								<td><div class="reportdate">$dateUtil.format($timelineEntry.getKey())</div></td>
+								<td>
+									#foreach( $timelineEntryEntry in $timelineEntry.getValue().entrySet())
+										<span class="reportcategory">$dbpediaCategories.get($timelineEntryEntry.getKey()) ($timelineEntryEntry.getValue())</span>
+									#end
+								</td>
+							</tr>
+						#end
+					</table>
+				</div>
 			</div>
     		<div id="footer"><a href="http://github.com/rudgern/expert-profiling">Gerado pelo Expert Profiling em ${generatedDate}</a></div>
 		</div>
