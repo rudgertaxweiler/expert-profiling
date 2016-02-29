@@ -33,3 +33,7 @@ Finally, tagcloud, timeline and report are generated in HTML page via Apache Vel
 
 ##Report
 ![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-report.png)
+
+##Download 
+[Simple Destop Application version 97MB  1.0.0-alpha](https://github.com/rudgern/expert-profiling/blob/gh-deploy/expert-profiling-1.0.0-alpha-jar-with-dependencies.jar). Requires java 1.8.
+
