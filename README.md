@@ -19,3 +19,17 @@ In this analyzer is used Jena and Lucene libraries for reading the contents of S
 The documents dates and the concepts found are stored in a Lucene index and then are processed to generate the tagcloud, timeline and report.  
 
 Finally, tagcloud, timeline and report are generated in HTML page via Apache Velocity and its contents are displayed using the Timeline JavaScript components of chap-link-library and JQcloud`s TagCloud.
+
+#The application and the results
+
+##Simple Desktop Application
+![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-desktop-application.png)
+
+##Tag cloud
+![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-tagcloud.png)
+
+##Timeline
+![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-timeline.png)
+
+##Report
+![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-report.png)
