@@ -35,5 +35,5 @@ Finally, tagcloud, timeline and report are generated in HTML page via Apache Vel
 ![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-report.png)
 
 ##Download
-[Simple Desktop Application version 97 MB  1.0.0-alpha](https://github.com/rudgern/expert-profiling/blob/gh-deploy/expert-profiling-1.0.0-alpha-jar-with-dependencies.jar?raw=true). Requires java 1.8.
+[Simple Desktop Application version 97 MB  1.0.0-alpha](https://github.com/rudgern/expert-profiling/blob/gh-deploy/expert-profiling-1.0.0-alpha-jar-with-dependencies.jar?raw=true). [Requires Java 1.8](http://www.oracle.com/technetwork/pt/java/javase/downloads/jre8-downloads-2133155.html).
 
