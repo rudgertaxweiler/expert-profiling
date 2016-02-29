@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Expert-profiling : A tool to extract information about knowledge and interests of experts from unstructured documents and in natural language.">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Expert-profiling</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/rudgern/expert-profiling">View on GitHub</a>
+
+          <h1 id="project_title">Expert-profiling</h1>
+          <h2 id="project_tagline">A tool to extract information about knowledge and interests of experts from unstructured documents and in natural language.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/rudgern/expert-profiling/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/rudgern/expert-profiling/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="goal" class="anchor" href="#goal" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Goal</h1>
+
+<p>This project was conceived in order to extract information about knowledge and interests of experts from unstructured documents and in natural language (NLP).   </p>
+
+<p>To accomplish this extraction, the documents contained in an expert’s folder are analyzed.The contents extracted of these documents generate cloud terms, profile timeline and report per year of the main concepts found. Examples of these results are presented in the images at the end of this content.  </p>
+
+<p>This project is the result of Rudger’s master research conducted in Knowledge Engineering and Management program at the University of Santa Catarina, southern Brazil.  </p>
+
+<h1>
+<a id="technical-information" class="anchor" href="#technical-information" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Technical information</h1>
+
+<p>This project was built with a range of pipelines of natural language processing analyzers by using DKPro, Apache UIMA and Apache UIMA Fit.  </p>
+
+<p>The files reading is based on Apache TIKA library and allows the analysis of various document formats such as .doc, .docx, .ppt, .pptx, .xls, .xlsx, .txt, .pdf and others. </p>
+
+<p>In order to identify the concepts in the document, the SKOS’s content from DBPedia was utilized.</p>
+
+<p>In this analyzer is used Jena and Lucene libraries for reading the contents of SKOS in ontology format and for searching concepts. The DPPedia in English and Portuguese add together 1.5 million terms, for example. </p>
+
+<p>The documents dates and the concepts found are stored in a Lucene index and then are processed to generate the tagcloud, timeline and report.  </p>
+
+<p>Finally, tagcloud, timeline and report are generated in HTML page via Apache Velocity and its contents are displayed using the Timeline JavaScript components of chap-link-library and JQcloud`s TagCloud.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Expert-profiling maintained by <a href="https://github.com/rudgern">rudgern</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-852920-3");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
