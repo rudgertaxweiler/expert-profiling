@@ -1,4 +1,4 @@
-==GOAL
+#Goal
 
 This project was conceived in order to extract information about knowledge and interests of experts from unstructured documents and in natural language (NLP).   
 
@@ -6,7 +6,7 @@ To accomplish this extraction, the documents contained in an expert’s folder a
 
 This project is the result of Rudger’s master research conducted in Knowledge Engineering and Management program at the University of Santa Catarina, southern Brazil.  
 
-==Technical information
+#Technical information
 
 This project was built with a range of pipelines of natural language processing analyzers by using DKPro, Apache UIMA and Apache UIMA Fit.  
 
