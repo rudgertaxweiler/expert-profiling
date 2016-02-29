@@ -196,7 +196,6 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
                     dbPediaCategory.uri = uri;
                     dbPediaCategory.value = value;
 
-                    this.getLogger().info(value);
                     dbPediaCategory.documentId = userDoc.id;
                     dbPediaCategory.documentCreationTime = this.truncateToDate(userDoc.creationTime);
                     dbPediaCategory.documentLastModificationTime = this.truncateToDate(userDoc.lastModificationTime);
