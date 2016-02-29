@@ -193,10 +193,6 @@
 					<typeSystemIncludes>
 						<include>src/main/resources/desc/type/**/*.xml</include>
 					</typeSystemIncludes>
-					<typeSystemExcludes>
-						<exclude>src/main/resources/desc/type/**/*_customized.xml</exclude>
-						<exclude>src/main/resources/desc/type/**/*_TypeSystemStyleMap.xml</exclude>
-					</typeSystemExcludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -230,6 +226,41 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+						 	<encoding>UTF-8</encoding>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>br.ufsc.egc.rudger.expertprofiling.ExpertProfilingGuiApp</mainClass>
+								</transformer>
+							</transformers>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/**/*.types.txt</exclude>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 

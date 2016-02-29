@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\Rudger\git\expert-profiling\target\ExpertProfiling.jar</jar>
+  <outfile>C:\Users\Rudger\git\expert-profiling\target\ExpertProfiling.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>high</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>true</restartOnCrash>
+  <manifest></manifest>
+  <icon></icon>
+  <singleInstance>
+    <mutexName>Expert Profiling</mutexName>
+    <windowTitle>Expert Profiling</windowTitle>
+  </singleInstance>
+  <jre>
+    <path>C:\Program Files\Java\jre1.8.0_73</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.8.0_5</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <opt>-Xms2g</opt>
+    <opt>-Xmx4g</opt>
+  </jre>
+</launch4jConfig>

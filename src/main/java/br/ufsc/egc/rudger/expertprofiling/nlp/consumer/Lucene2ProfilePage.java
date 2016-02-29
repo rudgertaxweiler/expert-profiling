@@ -1,8 +1,9 @@
 package br.ufsc.egc.rudger.expertprofiling.nlp.consumer;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +40,8 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneIndexFields {
 
@@ -73,7 +76,12 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         super.initialize(context);
 
         VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+        ve.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
+        ve.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
+        ve.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         ve.init();
+
         this.template = ve.getTemplate(this.velocityTemplateFile);
         this.parentsFilter = LuceneQueryUtil.createParentJoinDocument();
     }
@@ -91,8 +99,8 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         if (this.searcher != null) {
             File fileDest = new File(this.targetFile);
             fileDest.getParentFile().mkdirs();
-
-            try (FileWriter fw = new FileWriter(fileDest)) {
+            
+            try ( OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fileDest),"UTF-8")) {
                 VelocityContext context = new VelocityContext();
 
                 List<DbPediaCategory> annotations = this.readAnnotationsFromIndex();
@@ -136,7 +144,7 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
                 context.put("dbpediaCategories", dbpediaCategories);
                 context.put("dateUtil", new DateUtil(new SimpleDateFormat("yyyy")));
 
-                this.template.merge(context, fw);
+                this.template.merge(context, osw);
 
                 this.getLogger().info("Profile data file created in '" + fileDest.getAbsolutePath() + "'.");
             } catch (IOException e) {
@@ -178,7 +186,7 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
             int docId = scoreDoc.doc;
             Document document = this.searcher.doc(docId);
 
-            String uri = document.get(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI);
+            String uri = document.getField(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI).stringValue();
 
             if (uri != null) {
                 int lastIndexOf = uri.lastIndexOf(':');
@@ -187,6 +195,8 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
                     DbPediaCategory dbPediaCategory = new DbPediaCategory();
                     dbPediaCategory.uri = uri;
                     dbPediaCategory.value = value;
+
+                    this.getLogger().info(value);
                     dbPediaCategory.documentId = userDoc.id;
                     dbPediaCategory.documentCreationTime = this.truncateToDate(userDoc.creationTime);
                     dbPediaCategory.documentLastModificationTime = this.truncateToDate(userDoc.lastModificationTime);
@@ -226,10 +236,10 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.DST_OFFSET, 0);
         cal.set(Calendar.ZONE_OFFSET, 0);
-        
-        //rounding to last day of year
+
+        // rounding to last day of year
         cal.add(Calendar.YEAR, 1);
-        cal.add(Calendar.MILLISECOND, 1); 
+        cal.add(Calendar.MILLISECOND, 1);
         return cal.getTimeInMillis();
     }
 
@@ -324,7 +334,7 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
     }
 
     public static class DateUtil {
-        
+
         private SimpleDateFormat sdf;
 
         public DateUtil(final SimpleDateFormat sdf) {
