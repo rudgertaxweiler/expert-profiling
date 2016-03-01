@@ -256,8 +256,14 @@ public class ExpertProfilingPipeline {
         for (int i = 0; i < aList.size(); i++) {
             sj.add(aList.get(i));
         }
-
-        logger.info("Running with " + sj.toString() + " VM parameters");
+        
+        String parameters =  sj.toString();
+        
+        if(parameters.length() > 0){
+            logger.info("Running with " + sj.toString() + " VM parameters");
+        } else {
+            logger.info("Running without VM parameters");
+        }
     }
 
 }
