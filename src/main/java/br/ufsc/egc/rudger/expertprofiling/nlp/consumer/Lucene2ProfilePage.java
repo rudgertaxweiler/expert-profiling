@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -67,8 +68,6 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
 
     private Template template;
 
-    private IndexSearcher searcher;
-
     private BitDocIdSetCachingWrapperFilter parentsFilter;
 
     @Override
@@ -90,58 +89,32 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
     public void collectionProcessComplete() throws AnalysisEngineProcessException {
         File fileIndex = new File(this.indexPath);
 
+        FSDirectory indexDir = null;
+        DirectoryReader indexReader = null;
+        IndexSearcher searcher = null;
+
         try {
-            this.searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(fileIndex.toPath())));
+            indexDir = FSDirectory.open(fileIndex.toPath());
+            indexReader = DirectoryReader.open(indexDir);
+            searcher = new IndexSearcher(indexReader);
         } catch (IOException e) {
             this.getLogger().info("No data to precess in '" + fileIndex.getAbsolutePath() + "'.");
         }
 
-        if (this.searcher != null) {
+        if (searcher != null) {
             File fileDest = new File(this.targetFile);
             fileDest.getParentFile().mkdirs();
-            
-            try ( OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fileDest),"UTF-8")) {
+
+            try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fileDest), "UTF-8")) {
                 VelocityContext context = new VelocityContext();
 
-                List<DbPediaCategory> annotations = this.readAnnotationsFromIndex();
-
-                //@formatter:off
-                Map<String, Long> tagCloud = annotations
-                        .stream()
-                        .map(DbPediaCategory::getUri)
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                        .entrySet()
-                        .stream()
-                        .sorted(Map.Entry.<String, Long> comparingByValue(Comparator.reverseOrder()).thenComparing(Map.Entry.comparingByKey()))
-                        .limit(100)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                
-                Map<Long, Map<String, Long>> timeline = annotations
-                        .stream()
-                        .collect(Collectors.groupingBy(DbPediaCategory::getDocumentLastModificationTime, 
-                                Collectors.collectingAndThen(Collectors.groupingBy(DbPediaCategory::getUri, Collectors.counting()), 
-                                        m -> m.entrySet()
-                                        .stream()
-                                        .sorted(Map.Entry.<String, Long> comparingByValue(Comparator.reverseOrder()).thenComparing(Map.Entry.comparingByKey()))
-                                        .limit(100)
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2)-> v1, LinkedHashMap<String, Long>::new))))); 
-                
-                timeline = timeline
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.<Long, Map<String, Long>> comparingByKey(Comparator.reverseOrder()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2)-> v1, LinkedHashMap<Long, Map<String, Long>>::new));
-                
-                Map<String, String> dbpediaCategories = annotations
-                        .stream()
-                        .collect(Collectors.toMap(DbPediaCategory::getUri, DbPediaCategory::getValue, (v1, v2) -> v1));
-                //@formatter:on
+                List<DbPediaCategory> annotations = this.readAnnotationsFromIndex(searcher);
 
                 context.put("ownerName", this.ownerName);
                 context.put("generatedDate", new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm").format(new Date()));
-                context.put("tagcloud", tagCloud);
-                context.put("timeline", timeline);
-                context.put("dbpediaCategories", dbpediaCategories);
+                context.put("tagcloud", this.annotationsToTagcloud(annotations));
+                context.put("timeline", this.annotationsToTimeline(annotations));
+                context.put("dbpediaCategories", this.annotationsToDbpediaCategories(annotations));
                 context.put("dateUtil", new DateUtil(new SimpleDateFormat("yyyy")));
 
                 this.template.merge(context, osw);
@@ -151,6 +124,53 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
                 throw new AnalysisEngineProcessException(e);
             }
         }
+
+        IOUtils.closeQuietly(indexReader);
+        IOUtils.closeQuietly(indexDir);
+    }
+
+    private Map<String, String> annotationsToDbpediaCategories(final List<DbPediaCategory> annotations) {
+        //@formatter:off
+        return annotations
+                  .stream()
+                  .collect(Collectors.toMap(DbPediaCategory::getUri, DbPediaCategory::getValue, (v1, v2) -> v1));
+        //@formatter:on
+    }
+
+    private Map<Long, Map<String, Long>> annotationsToTimeline(final List<DbPediaCategory> annotations) {
+        //@formatter:off
+        Map<Long, Map<String, Long>> timeline = annotations
+                .stream()
+                .collect(Collectors.groupingBy(DbPediaCategory::getDocumentLastModificationTime, 
+                        Collectors.collectingAndThen(Collectors.groupingBy(DbPediaCategory::getUri, Collectors.counting()), 
+                                m -> m.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<String, Long> comparingByValue(Comparator.reverseOrder()).thenComparing(Map.Entry.comparingByKey()))
+                                .limit(100)
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2)-> v1, LinkedHashMap<String, Long>::new))))); 
+        
+        timeline = timeline
+        .entrySet()
+        .stream()
+        .sorted(Map.Entry.<Long, Map<String, Long>> comparingByKey(Comparator.reverseOrder()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2)-> v1, LinkedHashMap<Long, Map<String, Long>>::new));
+        //@formatter:on
+
+        return timeline;
+    }
+
+    private Map<String, Long> annotationsToTagcloud(final List<DbPediaCategory> annotations) {
+      //@formatter:off
+        return annotations
+                .stream()
+                .map(DbPediaCategory::getUri)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long> comparingByValue(Comparator.reverseOrder()).thenComparing(Map.Entry.comparingByKey()))
+                .limit(100)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        //@formatter:on
     }
 
     @Override
@@ -158,14 +178,14 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         // NOOP
     }
 
-    private List<DbPediaCategory> readAnnotationsFromIndex() throws IOException {
+    private List<DbPediaCategory> readAnnotationsFromIndex(final IndexSearcher searcher) throws IOException {
         List<DbPediaCategory> result = new ArrayList<>();
 
-        TopDocs searchDocuments = this.searcher.search(this.getDocumentsQuery(this.ownerCode), Integer.MAX_VALUE);
+        TopDocs searchDocuments = searcher.search(this.getDocumentsQuery(this.ownerCode), Integer.MAX_VALUE);
 
         for (ScoreDoc scoreDoc : searchDocuments.scoreDocs) {
             int docId = scoreDoc.doc;
-            Document document = this.searcher.doc(docId);
+            Document document = searcher.doc(docId);
 
             UserDocument userDoc = new UserDocument();
 
@@ -174,17 +194,18 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
             userDoc.lastModificationTime = document.getField(LuceneIndexFields.FIELD_DOC_LAST_MODIFICATION_TIME).numericValue().longValue();
             userDoc.lastAccessTime = document.getField(LuceneIndexFields.FIELD_DOC_LAST_ACCESS_TIME).numericValue().longValue();
 
-            this.processAnnotationsFromDocument(userDoc, result);
+            this.processAnnotationsFromDocument(searcher, userDoc, result);
         }
         return result;
     }
 
-    private void processAnnotationsFromDocument(final UserDocument userDoc, final List<DbPediaCategory> result) throws IOException {
-        TopDocs searchDocuments = this.searcher.search(this.getAnnorationQuery(this.ownerCode, userDoc.id), Integer.MAX_VALUE);
+    private void processAnnotationsFromDocument(final IndexSearcher searcher, final UserDocument userDoc, final List<DbPediaCategory> result)
+            throws IOException {
+        TopDocs searchDocuments = searcher.search(this.getAnnorationQuery(this.ownerCode, userDoc.id), Integer.MAX_VALUE);
 
         for (ScoreDoc scoreDoc : searchDocuments.scoreDocs) {
             int docId = scoreDoc.doc;
-            Document document = this.searcher.doc(docId);
+            Document document = searcher.doc(docId);
 
             String uri = document.getField(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI).stringValue();
 

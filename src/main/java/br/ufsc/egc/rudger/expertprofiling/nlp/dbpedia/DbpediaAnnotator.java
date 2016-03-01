@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -100,7 +101,7 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
 
             this.normalizer = this.createNormalizerWrapper();
 
-            if (index.exists()) {
+            if (index.exists() && conf.exists()) {
                 this.getLogger().info("Index directory found. Loading data from '" + index.getAbsolutePath() + "'.");
                 this.skosEngine = new SkosEngineImpl(index, this.normalizer);
                 this.skosEngine.createSearch();
@@ -110,6 +111,8 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
                 }
                 this.maxTokens = new Integer(this.props.getProperty(MAX_TOKENS));
             } else {
+                FileUtils.forceDelete(index);
+                
                 this.getLogger().info("Index directory not found in '" + index.getAbsolutePath() + "'. Downloading the SKOS data from DBpedia.");
 
                 index.mkdirs();

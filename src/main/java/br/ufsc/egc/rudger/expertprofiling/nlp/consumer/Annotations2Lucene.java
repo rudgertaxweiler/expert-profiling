@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -71,6 +72,10 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
     public static final String PARAM_OWNER_NAME = "ownerName";
     @ConfigurationParameter(name = PARAM_OWNER_NAME, mandatory = true)
     private String ownerName;
+    
+    public static final String PARAM_CREATE_NEW_INDEX = "createNewIndex";
+    @ConfigurationParameter(name = PARAM_CREATE_NEW_INDEX, mandatory = false)
+    private boolean createNewIndex;
 
     private static final String DOC_SEQUENCE = "docSequence";
 
@@ -91,6 +96,8 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
     private BitDocIdSetCachingWrapperFilter parentsFilter;
 
     private boolean needMerge;
+    
+    private FSDirectory indexDir;
 
     @Override
     public void initialize(final UimaContext context) throws ResourceInitializationException {
@@ -105,7 +112,9 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
         this.gson = new Gson();
 
         try {
-            if (Files.exists(index)) {
+            if (this.createNewIndex && Files.exists(index)) {
+                FileUtils.forceDelete(index.toFile());
+            } else if (Files.exists(index)) {
                 this.getLogger().info("Index directory found in '" + index.toFile() + "'.");
             } else {
                 this.getLogger().info("Index directory not found in " + index.toFile() + ". Creating new directory.");
@@ -122,8 +131,8 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
                 this.docAnnotationSequence = new AtomicLong(0);
             }
 
-            FSDirectory indexDir = FSDirectory.open(index);
-            this.writer = this.createWriter(indexDir);
+            this.indexDir = FSDirectory.open(index);
+            this.writer = this.createWriter(this.indexDir);
 
             this.parentsFilter = LuceneQueryUtil.createParentJoinDocument();
         } catch (IOException e) {
@@ -143,6 +152,8 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
                 throw new AnalysisEngineProcessException(e);
             }
         }
+        
+        this.indexDir.close();
     }
 
     @Override

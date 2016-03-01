@@ -231,7 +231,9 @@ public class ExpertProfilingGuiApp extends JPanel implements ActionListener {
                         sb.append(ste);
                     }
 
-                    JOptionPane.showMessageDialog(null, sb.toString() + "\nTry to delete the application folder and run it again.", "Unexpected error",
+                    this.taLog.append(sb.toString());
+
+                    JOptionPane.showMessageDialog(null, "Sorry, something is wrong. Check the log and try to run it again.", "Unexpected error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }).start();
@@ -263,6 +265,9 @@ public class ExpertProfilingGuiApp extends JPanel implements ActionListener {
         config.setUserName(this.tfUserName.getText());
         config.setUserCode(this.tfUserName.getText());
         config.setSourceLocation(this.tfFolder.getText());
+
+        config.setCreateNewAnnotationIndex(true);
+
         return config;
     }
 

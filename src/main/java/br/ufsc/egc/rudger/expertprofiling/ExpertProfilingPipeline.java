@@ -54,6 +54,7 @@ public class ExpertProfilingPipeline {
 
         private boolean useXmiDumper;
         private boolean useHeidelTime;
+        private boolean createNewAnnotationIndex;
 
         public List<String> getStopWordFiles() {
             return this.stopWordFiles;
@@ -135,11 +136,19 @@ public class ExpertProfilingPipeline {
             this.useHeidelTime = useHeidelTime;
         }
 
+        public boolean isCreateNewAnnotationIndex() {
+            return this.createNewAnnotationIndex;
+        }
+
+        public void setCreateNewAnnotationIndex(final boolean createNewAnnotationIndex) {
+            this.createNewAnnotationIndex = createNewAnnotationIndex;
+        }
+
     }
 
     public File run(final Configuration config) throws IOException, UIMAException, URISyntaxException {
         this.runtimeParameters();
-        
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -208,6 +217,7 @@ public class ExpertProfilingPipeline {
                 Annotations2Lucene.class,
                 Annotations2Lucene.PARAM_OWNER_CODE, config.userCode,
                 Annotations2Lucene.PARAM_OWNER_NAME, config.userName,
+                Annotations2Lucene.PARAM_CREATE_NEW_INDEX, config.createNewAnnotationIndex,
                 Annotations2Lucene.PARAM_INDEX_PATH, ExpertProfilingPathUtil.getPath("document_annotation_index"));
         engines.add(luceneWriter);
         
@@ -237,7 +247,6 @@ public class ExpertProfilingPipeline {
 
         return new File(targetFile);
     }
-    
 
     public void runtimeParameters() {
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
@@ -247,7 +256,7 @@ public class ExpertProfilingPipeline {
         for (int i = 0; i < aList.size(); i++) {
             sj.add(aList.get(i));
         }
-        
+
         logger.info("Running with " + sj.toString() + " VM parameters");
     }
 
