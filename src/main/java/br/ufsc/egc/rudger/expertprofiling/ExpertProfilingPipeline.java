@@ -5,10 +5,13 @@ import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDe
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringJoiner;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.uima.UIMAException;
@@ -135,6 +138,8 @@ public class ExpertProfilingPipeline {
     }
 
     public File run(final Configuration config) throws IOException, UIMAException, URISyntaxException {
+        this.runtimeParameters();
+        
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -231,6 +236,19 @@ public class ExpertProfilingPipeline {
         logger.info("Successfully completed process. Total processing time " + stopWatch + ".");
 
         return new File(targetFile);
+    }
+    
+
+    public void runtimeParameters() {
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        List<String> aList = bean.getInputArguments();
+
+        StringJoiner sj = new StringJoiner(" ");
+        for (int i = 0; i < aList.size(); i++) {
+            sj.add(aList.get(i));
+        }
+        
+        logger.info("Running with " + sj.toString() + " VM parameters");
     }
 
 }
