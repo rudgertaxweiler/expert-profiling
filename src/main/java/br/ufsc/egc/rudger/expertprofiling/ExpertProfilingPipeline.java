@@ -238,8 +238,8 @@ public class ExpertProfilingPipeline {
         if(config.useXmiDumper){
             AnalysisEngineDescription dumper = createEngineDescription(
                     XmiWriter.class,
-                    XmiWriter.PARAM_TARGET_LOCATION, ExpertProfilingUtil.getPath("document_annotation_index") + "/analysis/result",
-                    XmiWriter.PARAM_TYPE_SYSTEM_FILE, ExpertProfilingUtil.getPath("document_annotation_index") + "/analysis/type/TypeSystem.xml",
+                    XmiWriter.PARAM_TARGET_LOCATION, ExpertProfilingUtil.getPath("analysis") + "/result",
+                    XmiWriter.PARAM_TYPE_SYSTEM_FILE, ExpertProfilingUtil.getPath("analysis") + "/TypeSystem.xml",
                     XmiWriter.PARAM_OVERWRITE, true);
             engines.add(dumper);
         }
