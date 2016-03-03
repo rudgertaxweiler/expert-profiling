@@ -35,10 +35,12 @@ Finally, tagcloud, timeline and report are generated in HTML page with Apache Ve
 ![alt tag](https://github.com/rudgern/expert-profiling/blob/gh-pages/images/expert-profiling-result-report.png)
 
 ##Download
-[Simple Desktop Application version  1.0.1-alpha (94 MB)](https://github.com/rudgern/expert-profiling/blob/gh-deploy/expert-profiling-1.0.1-alpha-jar-with-dependencies.jar?raw=true). [Requires Java 1.8](http://www.oracle.com/technetwork/pt/java/javase/downloads/jre8-downloads-2133155.html).
+[Simple Desktop Application version  1.0.2-alpha (94 MB)](https://github.com/rudgern/expert-profiling/blob/gh-deploy/expert-profiling-1.0.2-alpha-jar-with-dependencies.jar?raw=true). [Requires Java 1.8](http://www.oracle.com/technetwork/pt/java/javase/downloads/jre8-downloads-2133155.html).
 
 The Jena need 4G memory to process the SKOS DBPedia in English. So it is necessary run this program with the following command line at first time.
 
 ```
-java -Xms4g -Xmx4g -jar expert-profiling-1.0.1-alpha-jar-with-dependencies.jar
+java -Xms4g -Xmx4g -jar expert-profiling-1.0.2-alpha-jar-with-dependencies.jar
 ```
+
+Important: for while only supports the English and Portuguese languages. This information is obtained by the computer locale.
