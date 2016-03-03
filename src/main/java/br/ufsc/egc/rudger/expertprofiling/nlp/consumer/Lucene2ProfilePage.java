@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -207,9 +208,11 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
             int docId = scoreDoc.doc;
             Document document = searcher.doc(docId);
 
-            String uri = document.getField(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI).stringValue();
-
-            if (uri != null) {
+            IndexableField fieldUri = document.getField(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI);
+            
+            if (fieldUri != null) {
+                String uri = fieldUri.stringValue();
+                
                 int lastIndexOf = uri.lastIndexOf(':');
                 String value = uri.substring(lastIndexOf + 1, uri.length()).replaceAll("_", " ");
                 if (!StringUtils.isNumeric(value)) {

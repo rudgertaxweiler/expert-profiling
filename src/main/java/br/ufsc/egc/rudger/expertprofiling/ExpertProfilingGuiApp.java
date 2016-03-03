@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -44,7 +42,7 @@ public class ExpertProfilingGuiApp extends JPanel implements ActionListener {
     private static final File historyFile;
 
     static {
-        historyFile = ExpertProfilingPathUtil.getPath("gui-hystory");
+        historyFile = ExpertProfilingUtil.getPath("gui-hystory");
     }
 
     JButton btRun;
@@ -219,7 +217,10 @@ public class ExpertProfilingGuiApp extends JPanel implements ActionListener {
         } else {
             this.taLog.setText("");
 
-            ExpertProfilingPipeline.Configuration config = this.createConfig();
+            ExpertProfilingPipeline.Configuration config = ExpertProfilingUtil.createConfig();
+            config.setUserCode(this.tfUserName.getText());
+            config.setUserName(this.tfUserName.getText());
+            config.setSourceLocation(this.tfFolder.getText());
             new Thread(() -> {
                 try {
                     ExpertProfilingPipeline epp = new ExpertProfilingPipeline();
@@ -240,37 +241,7 @@ public class ExpertProfilingGuiApp extends JPanel implements ActionListener {
         }
     }
 
-    private ExpertProfilingPipeline.Configuration createConfig() {
-        ExpertProfilingPipeline.Configuration config = new ExpertProfilingPipeline.Configuration();
-
-        List<String> dppediaFiles = new ArrayList<>();
-        dppediaFiles.add("http://downloads.dbpedia.org/2015-10/core-i18n/pt/skos_categories_pt.ttl.bz2");
-        dppediaFiles.add("http://downloads.dbpedia.org/2015-10/core-i18n/en/skos_categories_en.ttl.bz2");
-        config.setDppediaFiles(dppediaFiles);
-
-        List<String> extensions = new ArrayList<>();
-        extensions.add("**/*.pdf");
-        extensions.add("**/*.txt");
-        extensions.add("**/*.docx");
-        extensions.add("**/*.doc");
-        extensions.add("**/*.ppt");
-        extensions.add("**/*.pptx");
-        config.setExtensions(extensions);
-
-        List<String> stopwordFiles = new ArrayList<>();
-        stopwordFiles.add("stopwords/stopwords_pt_BR.txt");
-        stopwordFiles.add("stopwords/stopwords_en.txt");
-        config.setStopWordFiles(stopwordFiles);
-
-        config.setUserName(this.tfUserName.getText());
-        config.setUserCode(this.tfUserName.getText());
-        config.setSourceLocation(this.tfFolder.getText());
-
-        config.setCreateNewAnnotationIndex(true);
-
-        return config;
-    }
-
+  
     @Override
     public void actionPerformed(final ActionEvent e) {
         int returnVal = this.fcFolder.showOpenDialog(ExpertProfilingGuiApp.this);

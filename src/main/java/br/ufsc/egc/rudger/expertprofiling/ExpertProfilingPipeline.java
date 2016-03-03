@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -31,7 +32,7 @@ import br.ufsc.egc.rudger.expertprofiling.nlp.types.Organization;
 import br.ufsc.egc.rudger.expertprofiling.nlp.types.Person;
 import de.tudarmstadt.ukp.dkpro.core.dictionaryannotator.DictionaryAnnotator;
 import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter;
-import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
+import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpSegmenter;
 
 public class ExpertProfilingPipeline {
 
@@ -55,7 +56,7 @@ public class ExpertProfilingPipeline {
         private boolean useXmiDumper;
         private boolean useHeidelTime;
         private boolean createNewAnnotationIndex;
-
+        
         public List<String> getStopWordFiles() {
             return this.stopWordFiles;
         }
@@ -152,9 +153,14 @@ public class ExpertProfilingPipeline {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        String targetFile = ExpertProfilingPathUtil.getPath("profiles") + config.userName + ".html";
+        String targetFile = ExpertProfilingUtil.getPath("profiles") + File.separator + config.userName + ".html";
 
         List<AnalysisEngineDescription> engines = new ArrayList<>();
+        
+        String language = Locale.getDefault().getLanguage();
+        if(!ObjectUtils.equals(language, "pt") && !ObjectUtils.equals(language, "en")){
+            language = "en";
+        }
 
         //@formatter:off
         CollectionReaderDescription reader = createReaderDescription(
@@ -162,10 +168,10 @@ public class ExpertProfilingPipeline {
                 DocumentReader.PARAM_NORMALIZE_TEXT, true,
                 DocumentReader.PARAM_SOURCE_LOCATION, config.sourceLocation,
                 DocumentReader.PARAM_PATTERNS, config.extensions,
-                DocumentReader.PARAM_LANGUAGE, Locale.getDefault());
+                DocumentReader.PARAM_LANGUAGE, language);
         
         AnalysisEngineDescription tokenizer = createEngineDescription(
-                BreakIteratorSegmenter.class);
+                OpenNlpSegmenter.class);
         engines.add(tokenizer);
         
         if(config.stopWordFiles != null && !config.stopWordFiles.isEmpty()){
@@ -178,13 +184,13 @@ public class ExpertProfilingPipeline {
         AnalysisEngineDescription dbpedia = createEngineDescription(
                 DbpediaAnnotator.class,
                 DbpediaAnnotator.PARAM_DBPEDIA_LINKS, config.dppediaFiles,
-                DbpediaAnnotator.PARAM_DBPEDIA_INDEX_PATH, ExpertProfilingPathUtil.getPath("dbpedia_index"));
+                DbpediaAnnotator.PARAM_DBPEDIA_INDEX_PATH, ExpertProfilingUtil.getPath("dbpedia_index"));
         engines.add(dbpedia);
         
         if(config.useHeidelTime){
             AnalysisEngineDescription heidel = createEngineDescription(
                     HeidelTimeWrapper.class,
-                    HeidelTimeWrapper.PARAM_LANGUAGE, "portuguese",
+                    HeidelTimeWrapper.PARAM_LANGUAGE, ObjectUtils.equals(language, "pt") ? "portuguese" : "english",
                     HeidelTimeWrapper.PARAM_TYPE_TO_PROCESS, "narrative",
                     HeidelTimeWrapper.PARAM_DATE, true,
                     HeidelTimeWrapper.PARAM_TIME, false,
@@ -195,7 +201,6 @@ public class ExpertProfilingPipeline {
             engines.add(heidel);
         }
        
-        
         if(config.personDictionaryLocation != null){
             AnalysisEngineDescription nameFinder = createEngineDescription(
                     DictionaryAnnotator.class,
@@ -218,14 +223,14 @@ public class ExpertProfilingPipeline {
                 Annotations2Lucene.PARAM_OWNER_CODE, config.userCode,
                 Annotations2Lucene.PARAM_OWNER_NAME, config.userName,
                 Annotations2Lucene.PARAM_CREATE_NEW_INDEX, config.createNewAnnotationIndex,
-                Annotations2Lucene.PARAM_INDEX_PATH, ExpertProfilingPathUtil.getPath("document_annotation_index"));
+                Annotations2Lucene.PARAM_INDEX_PATH, ExpertProfilingUtil.getPath("document_annotation_index"));
         engines.add(luceneWriter);
         
         AnalysisEngineDescription timelineJsWriter = createEngineDescription(
                 Lucene2ProfilePage.class,
                 Lucene2ProfilePage.PARAM_OWNER_CODE, config.userCode,
                 Lucene2ProfilePage.PARAM_OWNER_NAME, config.userName,
-                Lucene2ProfilePage.PARAM_INDEX_PATH, ExpertProfilingPathUtil.getPath("document_annotation_index"),
+                Lucene2ProfilePage.PARAM_INDEX_PATH, ExpertProfilingUtil.getPath("document_annotation_index"),
                 Lucene2ProfilePage.PARAM_VELOCITY_TEMPLATE_FILE, "/templates/profile.html",
                 Lucene2ProfilePage.PARAM_TARGET_FILE, targetFile);
         engines.add(timelineJsWriter);
@@ -233,8 +238,8 @@ public class ExpertProfilingPipeline {
         if(config.useXmiDumper){
             AnalysisEngineDescription dumper = createEngineDescription(
                     XmiWriter.class,
-                    XmiWriter.PARAM_TARGET_LOCATION, ExpertProfilingPathUtil.getPath("document_annotation_index") + "analysis/result",
-                    XmiWriter.PARAM_TYPE_SYSTEM_FILE, ExpertProfilingPathUtil.getPath("document_annotation_index") + "analysis/type/TypeSystem.xml",
+                    XmiWriter.PARAM_TARGET_LOCATION, ExpertProfilingUtil.getPath("document_annotation_index") + "/analysis/result",
+                    XmiWriter.PARAM_TYPE_SYSTEM_FILE, ExpertProfilingUtil.getPath("document_annotation_index") + "/analysis/type/TypeSystem.xml",
                     XmiWriter.PARAM_OVERWRITE, true);
             engines.add(dumper);
         }

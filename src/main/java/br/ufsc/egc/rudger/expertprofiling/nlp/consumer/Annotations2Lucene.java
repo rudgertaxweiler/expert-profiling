@@ -113,7 +113,7 @@ public class Annotations2Lucene extends JCasConsumer_ImplBase implements LuceneI
 
         try {
             if (this.createNewIndex && Files.exists(index)) {
-                FileUtils.forceDelete(index.toFile());
+                FileUtils.deleteQuietly(index.toFile());
             } else if (Files.exists(index)) {
                 this.getLogger().info("Index directory found in '" + index.toFile() + "'.");
             } else {

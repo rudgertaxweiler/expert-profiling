@@ -111,7 +111,7 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
                 }
                 this.maxTokens = new Integer(this.props.getProperty(MAX_TOKENS));
             } else {
-                FileUtils.forceDelete(index);
+                FileUtils.deleteQuietly(index);
                 
                 this.getLogger().info("Index directory not found in '" + index.getAbsolutePath() + "'. Downloading the SKOS data from DBpedia.");
 
