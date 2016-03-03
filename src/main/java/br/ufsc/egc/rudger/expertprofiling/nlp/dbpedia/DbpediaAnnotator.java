@@ -212,7 +212,7 @@ public class DbpediaAnnotator extends JCasAnnotator_ImplBase {
                 if (JCasUtil.selectAt(jCas, StopWord.class, beginToken.getBegin(), endToken.getEnd()).isEmpty()) {
 
                     longestMatch.begin = beginToken.getBegin();
-                    longestMatch.end = beginToken.getEnd();
+                    longestMatch.end = endToken.getEnd();
 
                     annotations.add(longestMatch);
                 }
