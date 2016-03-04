@@ -209,10 +209,10 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
             Document document = searcher.doc(docId);
 
             IndexableField fieldUri = document.getField(LuceneIndexFields.FIELD_DOC_ANNOTATION_DBPEDIA_CATEGORY_URI);
-            
+
             if (fieldUri != null) {
                 String uri = fieldUri.stringValue();
-                
+
                 int lastIndexOf = uri.lastIndexOf(':');
                 String value = uri.substring(lastIndexOf + 1, uri.length()).replaceAll("_", " ");
                 if (!StringUtils.isNumeric(value)) {
@@ -250,6 +250,11 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
 
     private long truncateToDate(final long dateAndTime) {
         Calendar cal = Calendar.getInstance();
+
+        int currentYear = cal.get(Calendar.YEAR);
+        int currentMonth = cal.get(Calendar.MONTH);
+        int currentDay = cal.get(Calendar.DAY_OF_MONTH);
+
         cal.setTimeInMillis(dateAndTime);
         cal.set(Calendar.MONTH, 0);
         cal.set(Calendar.DAY_OF_MONTH, 0);
@@ -263,6 +268,13 @@ public class Lucene2ProfilePage extends JCasConsumer_ImplBase implements LuceneI
         // rounding to last day of year
         cal.add(Calendar.YEAR, 1);
         cal.add(Calendar.MILLISECOND, 1);
+
+        if (cal.get(Calendar.YEAR) > currentYear || (cal.get(Calendar.YEAR) == currentYear && cal.get(Calendar.MONTH) > currentMonth)) {
+            cal.set(Calendar.YEAR, currentYear);
+            cal.set(Calendar.MONTH, currentMonth);
+            cal.set(Calendar.DAY_OF_MONTH, currentDay);
+        }
+
         return cal.getTimeInMillis();
     }
 

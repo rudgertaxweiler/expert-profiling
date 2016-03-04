@@ -37,7 +37,6 @@ public interface LuceneIndexFields {
     String FIELD_DOC_ANNOTATION_ID = "doc_annotation_id";
     String FIELD_DOC_ANNOTATION_DOCUMENT_ID = "doc_annotation_document_id";
     String FIELD_DOC_ANNOTATION_VALUE = "doc_annotation_value";
-    String FIELD_DOC_ANNOTATION_SENTENCE_ID = "doc_annotation_sentence_id";
     String FIELD_DOC_ANNOTATION_SENTENCE_SEQ = "doc_annotation_sentence_seq";
     String FIELD_DOC_ANNOTATION_SENTENCE_BEGIN = "doc_annotation_sentence_begin";
     String FIELD_DOC_ANNOTATION_SENTENCE_END = "doc_annotation_sentence_end";
