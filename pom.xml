@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -7,21 +8,21 @@
 	<version>1.0.2-alpha</version>
 	<name>expert-profiling</name>
 
-	<url>http://rudgern.github.io/expert-profiling/</url>
+	<url>https://rudgertaxweiler.github.io/expert-profiling/</url>
 	<description>A tool to extract information about knowledge and interests of experts from unstructured documents and in natural language.</description>
 	<organization>
 		<name>Universidade Federal de Santa Catarina - Programa de Engenharia e Gestão do Conhecimento</name>
-		<url>http://www.egc.ufsc.br/</url>
+		<url>https://ppgegc.paginas.ufsc.br/</url>
 	</organization>
 	<scm>
-		<url>https://github.com/rudgern/expert-profiling</url>
-		<connection>scm:git:git://github.com/rudgern/expert-profiling</connection>
-		<developerConnection>scm:git:git://github.com/rudgern/expert-profiling.git</developerConnection>
+		<url>https://github.com/rudgertaxweiler/expert-profiling</url>
+		<connection>scm:git:git://github.com/rudgertaxweiler/expert-profiling</connection>
+		<developerConnection>scm:git:git://github.com/rudgertaxweiler/expert-profiling.git</developerConnection>
 		<tag>master</tag>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/rudgern/expert-profiling/issues</url>
+		<url>https://github.com/rudgertaxweiler/expert-profiling/issues</url>
 	</issueManagement>
 
 	<properties>
@@ -54,8 +55,14 @@
 			<id>ukp-oss-snapshots</id>
 			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/simple/public-snapshots/</url>
 		</repository>
-
 	</repositories>
+	
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/rudgertaxweiler/expert-profiling</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -203,13 +210,6 @@
 
 	</dependencies>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -291,19 +291,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.3</version>
-				<extensions>true</extensions>
-				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>
